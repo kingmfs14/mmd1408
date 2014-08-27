@@ -6,6 +6,8 @@ Staging Environment
 1. create and checkout a new branch
    - git branch staging
    - git checkout staging
+   - git status
+   - git push github staging
 2. push update to staging server
    - git push mddStage staging
 3. test update
