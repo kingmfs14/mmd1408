@@ -8,9 +8,16 @@ Staging Environment
    - git checkout staging
    - git status
    - git push github staging
-2. push update to staging server
-   - git push mddStage staging
-3. test update
+2. test updates locally
+3. switch branches and merge files
+   - git checkout master
+   - git status
+   - git pull origin master
+   - git merge staging
+   - git push origin master
+4. push update to staging server
+   - git push mddStage master
+5. test update
 
 Production Environment
 1. switch branches and merge files
