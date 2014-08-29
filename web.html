@@ -15,8 +15,8 @@
       </ul>
       <section class='top-bar-section'>
         <ul class='right'>
-          <li class='active'><a href="index.html">home</a></li>
-          <li><a href="web.html">web</a></li>
+          <li><a href="index.html">home</a></li>
+          <li class='active'><a href="web.html">web</a></li>
           <li><a href="game.html">game</a></li>
           <li><a href="design.html">design</a></li>
         </ul>
@@ -25,25 +25,53 @@
 
     <div class='row'>
       <div class='large-12 large-centered columns'>
-        <h1>Matthew King's Portfolio</h1>
-        <p>Showing my diverse skills in a central location. If what I've done <em>inspires</em> you, <b>engages</b> you, and down right <em>motivates</em> you, then please <a href='mailto:kingm@fullsail.edu'>contact</a> me.</p>
+        <h1>Website Builds</h1>
       </div>
     </div>
 
-    <div class='row' id='slideshow'>
+    <div class='row'>
       <div class='large-12 large-centered columns'>
-        <ul data-orbit>
-          <li><img src="img/ist.jpg" alt="slide 1" /></li>
-          <li><img src="img/id.jpg" alt="slide 2" /></li>
-          <li><img src="img/ac.jpg" alt="slide 3" /></li>
-          <li><img src="img/prowed.jpg" alt="slide 4" /></li>
-        </ul>
+        <dl class="tabs" data-tab>
+          <dd class="active"><a href="#id">Inquire Designs</a></dd>
+          <dd><a href="#demoWed">Demo Wedding</a></dd>
+          <dd><a href="#realWed">Real Wedding</a></dd>
+          <dd><a href="#UE">Underwater Excursions</a></dd>
+          <dd><a href="#IST">Island Style Travel</a></dd>
+          <p>&nbsp;<p>
+        </dl>
+        <div class="tabs-content">
+          <div class="content active" id="id">
+            <img src="img/id.jpg" alt='Inquire Designs website'>
+            <p>&nbsp;<p>
+            <p>This is my business website that I optimized for mobile devices. Check out my company <a href='http://www.inquiredesigns.com' target="_blank">website</a>.</p>
+          </div>
+          <div class="content" id="demoWed">
+            <img src="img/wedding.jpg" alt='Demo version of wedding website'>
+            <p>&nbsp;<p>
+            <p>First design of wedding website for me and my fiancee. Take a <a href="http://kingmfs14.github.io/WIA1404/Final%20Project/index.html" target="_blank">look</a> and scrutinize away.</p>
+          </div>
+          <div class="content" id="realWed">
+            <img src="img/prowed.jpg" alt='real live wedding website'>
+            <p>&nbsp;<p>
+            <p>This is the aftermath of my wedding <a href='http://www.mmking2014.com' target='_blank'>website</a> after my fiancee had a say. A happy wife, or fiancee, happy life right?</p>
+          </div>
+          <div class="content" id="UE">
+            <img src="img/underwater.jpg" alt='Underwater Excursions website'>
+            <p>&nbsp;<p>
+            <p>I expounded upon this design throughout many of my classes at Full Sail University. My instructors have helped guide me to creating this mock up <a href="http://kingmfs14.github.io/wsp1307/index.html" target="_blank">website</a>.</p>
+          </div>
+          <div class="content" id="IST">
+            <img src="img/ist.jpg" alt='Island Style Travel company website'>
+            <p>&nbsp;<p>
+            <p>My first official client wanted a simple <a href='http://www.islandstyletravel.net'>website</a> with form capability and social integration.</p>
+          </div>
+        </div>  
       </div>
     </div>
     
     <script src="js/vendor/jquery.js"></script>
-    <script src="js/foundation/foundation.js"></script>
-    <script src="js/foundation/foundation.orbit.js"></script>
+    <script src="js/foundation/new/foundation.js"></script>
+    <script src="js/foundation/foundation.tab.js"></script>
     <script>
       $(document).foundation();
     </script>

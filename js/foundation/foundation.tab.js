@@ -1,17 +1,17 @@
-/*jslint unparam: true, browser: true, indent: 2 */
 ;(function ($, window, document, undefined) {
   'use strict';
 
   Foundation.libs.tab = {
     name : 'tab',
 
-    version : '5.2.0',
+    version : '5.4.1',
 
     settings : {
       active_class: 'active',
       callback : function () {},
       deep_linking: false,
-      scroll_to_content: true
+      scroll_to_content: true,
+      is_hover: false
     },
 
     default_tab_hashes: [],
@@ -26,7 +26,7 @@
       // Store the default active tabs which will be referenced when the
       // location hash is absent, as in the case of navigating the tabs and
       // returning to the first viewing via the browser Back button.
-      S('[' + this.attr_name() + '] > dd.active > a', this.scope).each(function () {
+      S('[' + this.attr_name() + '] > .active > a', this.scope).each(function () {
         self.default_tab_hashes.push(this.hash);
       });
     },
@@ -35,18 +35,38 @@
       var self = this,
           S = this.S;
 
-      // Click event: tab title
-      S(this.scope).off('.tab').on('click.fndtn.tab', '[' + this.attr_name() + '] > dd > a', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        self.toggle_active_tab(S(this).parent());
-      });
+      var usual_tab_behavior =  function (e) {
+          var settings = S(this).closest('[' + self.attr_name() +']').data(self.attr_name(true) + '-init');
+          if (!settings.is_hover || Modernizr.touch) {
+            e.preventDefault();
+            e.stopPropagation();
+            self.toggle_active_tab(S(this).parent());
+          }
+        };
+
+      S(this.scope)
+        .off('.tab')
+        // Click event: tab title
+        .on('focus.fndtn.tab', '[' + this.attr_name() + '] > * > a', usual_tab_behavior )
+        .on('click.fndtn.tab', '[' + this.attr_name() + '] > * > a', usual_tab_behavior )
+        // Hover event: tab title
+        .on('mouseenter.fndtn.tab', '[' + this.attr_name() + '] > * > a', function (e) {
+          var settings = S(this).closest('[' + self.attr_name() +']').data(self.attr_name(true) + '-init');
+          if (settings.is_hover) self.toggle_active_tab(S(this).parent());
+        });
 
       // Location hash change event
       S(window).on('hashchange.fndtn.tab', function (e) {
         e.preventDefault();
         self.handle_location_hash_change();
-      });
+
+      }).on('keyup', function (e) {
+        if (e.keyword == 9) {
+          // active tab
+          console.log(document.querySelector('[data-tab] .tab-title :focus'))
+        }
+      });
+      ;
     },
 
     handle_location_hash_change : function () {
@@ -64,19 +84,19 @@
             var hash_element = S(hash);
             if (hash_element.hasClass('content') && hash_element.parent().hasClass('tab-content')) {
               // Tab content div
-              self.toggle_active_tab($('[' + self.attr_name() + '] > dd > a[href=' + hash + ']').parent());
+              self.toggle_active_tab($('[' + self.attr_name() + '] > * > a[href=' + hash + ']').parent());
             } else {
               // Not the tab content div. If inside the tab content, find the
               // containing tab and toggle it as active.
               var hash_tab_container_id = hash_element.closest('.content').attr('id');
               if (hash_tab_container_id != undefined) {
-                self.toggle_active_tab($('[' + self.attr_name() + '] > dd > a[href=#' + hash_tab_container_id + ']').parent(), hash);
+                self.toggle_active_tab($('[' + self.attr_name() + '] > * > a[href=#' + hash_tab_container_id + ']').parent(), hash);
               }
             }
           } else {
             // Reference the default tab hashes which were initialized in the init function
             for (var ind in self.default_tab_hashes) {
-              self.toggle_active_tab($('[' + self.attr_name() + '] > dd > a[href=' + self.default_tab_hashes[ind] + ']').parent());
+              self.toggle_active_tab($('[' + self.attr_name() + '] > * > a[href=' + self.default_tab_hashes[ind] + ']').parent());
             }
           }
         }
@@ -86,11 +106,58 @@
     toggle_active_tab: function (tab, location_hash) {
       var S = this.S,
           tabs = tab.closest('[' + this.attr_name() + ']'),
+          tab_link = tab.find('a'),
           anchor = tab.children('a').first(),
           target_hash = '#' + anchor.attr('href').split('#')[1],
           target = S(target_hash),
           siblings = tab.siblings(),
-          settings = tabs.data(this.attr_name(true) + '-init');
+          settings = tabs.data(this.attr_name(true) + '-init'),
+          interpret_keyup_action = function(e) {
+            // Light modification of Heydon Pickering's Practical ARIA Examples: http://heydonworks.com/practical_aria_examples/js/a11y.js 
+
+            // define current, previous and next (possible) tabs
+
+            var $original = $(this);
+            var $prev = $(this).parents('li').prev().children('[role="tab"]');
+            var $next = $(this).parents('li').next().children('[role="tab"]');
+            var $target;
+
+            // find the direction (prev or next)
+
+            switch (e.keyCode) {
+              case 37:
+                $target = $prev;
+                break;
+              case 39:
+                $target = $next;
+                break;
+              default:
+                $target = false
+                  break;
+            }
+
+            if ($target.length) {
+              $original.attr({
+                'tabindex' : '-1',
+                'aria-selected' : null
+              });
+              $target.attr({
+                'tabindex' : '0',
+                'aria-selected' : true
+              }).focus();
+            }
+
+            // Hide panels
+
+            $('[role="tabpanel"]')
+              .attr('aria-hidden', 'true');
+
+            // Show panel which corresponds to target
+
+            $('#' + $(document.activeElement).attr('href').substring(1))
+              .attr('aria-hidden', null);
+
+          };
 
       // allow usage of data-tab-content attribute instead of href
       if (S(this).data(this.data_attr('tab-content'))) {
@@ -134,11 +201,18 @@
       // WARNING: The activation and deactivation of the tab content must
       // occur after the deep linking in order to properly refresh the browser
       // window (notably in Chrome).
+      // Clean up multiple attr instances to done once
       tab.addClass(settings.active_class).triggerHandler('opened');
-      siblings.removeClass(settings.active_class);
-      target.siblings().removeClass(settings.active_class).end().addClass(settings.active_class);
+      tab_link.attr({"aria-selected": "true",  tabindex: 0});
+      siblings.removeClass(settings.active_class)
+      siblings.find('a').attr({"aria-selected": "false",  tabindex: -1});
+      target.siblings().removeClass(settings.active_class).attr({"aria-hidden": "true",  tabindex: -1}).end().addClass(settings.active_class).attr('aria-hidden', 'false').find(':first-child').attr('tabindex', 0);
       settings.callback(tab);
-      tabs.triggerHandler('toggled', [tab]);
+      target.children().attr('tab-index', 0);
+      target.triggerHandler('toggled', [tab]);
+      tabs.triggerHandler('toggled', [target]);
+
+      tab_link.on('keydown', interpret_keyup_action );
     },
 
     data_attr: function (str) {
@@ -153,4 +227,4 @@
 
     reflow : function () {}
   };
-}(jQuery, this, this.document));
+}(jQuery, window, window.document));
